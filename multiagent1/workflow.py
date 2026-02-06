@@ -4,7 +4,7 @@ from langgraph.graph import StateGraph, START, END
 from langgraph.checkpoint.postgres import PostgresSaver
 
 from state import GraphState
-from agents.database_node import save_to_db_node, init_db, DB_URI
+from agents.database_node import save_to_db_node, redis_push_node, init_db, DB_URI
 
 # Import your agent nodes
 from agents.agent_1_TextImprove import text_improve_node
@@ -34,6 +34,7 @@ def create_app():
     builder.add_node("tri", tri_node)
     builder.add_node("extractor", extractor_node)
     builder.add_node("db_save", save_to_db_node)
+    builder.add_node("redis_push", redis_push_node)
 
     # Edges
     builder.add_edge(START, "text_improve")
@@ -45,15 +46,24 @@ def create_app():
     
     builder.add_edge("tri", "extractor")
     builder.add_edge("extractor", "db_save")
-    builder.add_edge("db_save", END)
+    builder.add_edge("db_save", "redis_push")
+    builder.add_edge("redis_push", END)
 
     # 3. Memory/Checkpointing
     connection_kwargs = {"autocommit": True, "prepare_threshold": 0, "row_factory": dict_row}
-    pool = ConnectionPool(conninfo=DB_URI, max_size=10, kwargs=connection_kwargs)
+    pool = ConnectionPool(
+        conninfo=DB_URI,
+        min_size=1,           # Start with 1 connection, grow as needed
+        max_size=10,          # Maximum concurrent connections
+        timeout=30,           # Fail fast if can't get connection in 30s
+        kwargs=connection_kwargs,
+        open=True             # Open pool immediately and wait for first connection
+    )
     checkpointer = PostgresSaver(pool)
     checkpointer.setup() 
     
     return builder.compile(checkpointer=checkpointer)
+    # return builder.compile()
 
 # Export app for main.py
 app = create_app()

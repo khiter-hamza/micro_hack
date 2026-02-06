@@ -2,7 +2,7 @@ import psycopg
 from state import GraphState
 
 # REPLACE 'your_password' with the password you set in the terminal
-DB_URI = "postgresql://postgres:password123@localhost:5432/micro_hack_db"
+DB_URI = "postgresql://postgres:password123@127.0.0.1:5432/micro_hack_db"
 
 def init_db():
     """Initializes the table with the Corrected Text field included."""
@@ -70,4 +70,28 @@ def save_to_db_node(state: GraphState) -> GraphState:
                 print(f"💾 Database updated for signal: {state['signal_id']}")
     except Exception as e:
         print(f"❌ DB Node Save Error: {e}")
+    return state
+
+def redis_push_node(state: GraphState) -> GraphState:
+    """Pushes the signal to Redis for Tier-2 processing."""
+    try:
+        import redis
+        import json
+        
+        # Connect to Redis
+        r = redis.Redis(host='localhost', port=6379, db=0)
+        
+        # Prepare payload
+        payload = {
+            "signal_id": state['signal_id'],
+            "corrected_text": state['corrected_text']
+        }
+        
+        # Push to the queue
+        r.lpush("signal_queue", json.dumps(payload))
+        print(f"🚀 Pushed to Redis Queue: {state['signal_id']}")
+        
+    except Exception as e:
+        print(f"⚠️ Redis Push Error: {e}")
+        
     return state

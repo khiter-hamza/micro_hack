@@ -111,7 +111,14 @@ def create_tier2_app():
 
     # 4. Persistence (Checkpointing)
     connection_kwargs = {"autocommit": True, "prepare_threshold": 0, "row_factory": dict_row}
-    pool = ConnectionPool(conninfo=DB_URI, max_size=10, kwargs=connection_kwargs)
+    pool = ConnectionPool(
+        conninfo=DB_URI,
+        min_size=1,           # Start with 1 connection, grow as needed
+        max_size=10,          # Maximum concurrent connections
+        timeout=30,           # Fail fast if can't get connection in 30s
+        kwargs=connection_kwargs,
+        open=True             # Open pool immediately and wait for first connection
+    )
     checkpointer = PostgresSaver(pool)
     # Important: run checkpointer.setup() once in your init script or here
     
