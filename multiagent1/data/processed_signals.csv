@@ -1,0 +1,4 @@
+signal_id,corrected_text,domain,impact,urgency,tri,technologies,companies,location,retry_count
+SIG-1,"IBM has announced its new 1,000-qubit quantum processor, named Condor.",Quantum Computing,0.85,0.75,6.5,"['1,000-qubit quantum processor', 'Condor']",['IBM'],,0
+SIG-2,A new IoT sensor system for smart grids has been implemented in Singapore.,IoT,0.85,0.75,9.0,"['IoT sensor system', 'smart grids']",[],Singapore,0
+SIG-3,A cybersecurity breach occurred at a major financial institution.,Cybersecurity,0.9,0.95,0.0,[],[],,0
