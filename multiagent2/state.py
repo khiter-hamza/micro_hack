@@ -9,6 +9,7 @@ def merge_dicts(existing: Dict, new: Dict) -> Dict:
 
 class Tier2State(TypedDict):
     signal_id: str
+    opportunity_id: str  # Added for integration
     corrected_text: str
     
     # Outputs

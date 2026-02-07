@@ -14,8 +14,8 @@ from agents.market_analyst import market_analysis_node
 from agents.feasibility_expert import feasibility_node
 from agents.strategist import final_recommendation_node
 
-# --- DB URI for Checkpointing (Same as Tier 1 or separate) ---
-DB_URI = "postgresql://postgres:password123@127.0.0.1:5432/micro_hack_db"
+# --- DB URI for Checkpointing ---
+DB_URI = "postgresql://postgres:postgres@localhost:5432/microhack"
 
 # --- ROUTING LOGIC (The ReAct Loops) ---
 
